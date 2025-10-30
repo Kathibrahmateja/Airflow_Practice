@@ -1,0 +1,90 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Airflow123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "Airflow123!" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  airflow-webserver:
+    build: .
+    image: airflow-custom:latest
+    command: webserver
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: mssql+pyodbc://sa:Airflow123!@mssql/airflow?driver=ODBC+Driver+17+for+SQL+Server
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__WEBSERVER__WORKERS: '2'
+      AIRFLOW__WEBSERVER__WORKER_REFRESH_INTERVAL: '3600'
+      AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT: '300'
+      AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
+      AIRFLOW__SMTP__SMTP_PORT: 587
+      AIRFLOW__SMTP__SMTP_USER: ${AIRFLOW_SMTP_USER}
+      AIRFLOW__SMTP__SMTP_PASSWORD: ${AIRFLOW_SMTP_PASSWORD}
+      AIRFLOW__SMTP__SMTP_MAIL_FROM: ${AIRFLOW_SMTP_MAIL_FROM}
+      AIRFLOW__SMTP__SMTP_SSL: 'True'
+      AIRFLOW__SMTP__SMTP_STARTTLS: 'True'
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+      - airflow-init
+
+  airflow-scheduler:
+    build: .
+    image: airflow-custom:latest
+    command: scheduler
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: mssql+pyodbc://sa:Airflow123!@mssql/airflow?driver=ODBC+Driver+17+for+SQL+Server
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
+      AIRFLOW__SMTP__SMTP_PORT: 587
+      AIRFLOW__SMTP__SMTP_USER: ${AIRFLOW_SMTP_USER}
+      AIRFLOW__SMTP__SMTP_PASSWORD: ${AIRFLOW_SMTP_PASSWORD}
+      AIRFLOW__SMTP__SMTP_MAIL_FROM: ${AIRFLOW_SMTP_MAIL_FROM}
+      AIRFLOW__SMTP__SMTP_SSL: 'True'
+      AIRFLOW__SMTP__SMTP_STARTTLS: 'True'
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    depends_on:
+      - postgres
+      - airflow-init
+
+  airflow-init:
+    build: .
+    image: airflow-custom:latest
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db init &&
+        airflow users create \
+          --username airflow \
+          --password airflow \
+          --firstname airflow \
+          --lastname airflow \
+          --role Admin \
+          --email ${AIRFLOW_SMTP_USER}
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: mssql+pyodbc://sa:Airflow123!@mssql/airflow?driver=ODBC+Driver+17+for+SQL+Server
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    depends_on:
+      - mssql
+
+volumes:
+  mssql-data:
