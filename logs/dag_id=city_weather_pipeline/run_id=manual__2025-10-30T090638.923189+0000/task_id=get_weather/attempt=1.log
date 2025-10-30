@@ -1,0 +1,19 @@
+[2025-10-30T09:07:13.509+0000] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: city_weather_pipeline.get_weather manual__2025-10-30T09:06:38.923189+00:00 [queued]>
+[2025-10-30T09:07:13.530+0000] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: city_weather_pipeline.get_weather manual__2025-10-30T09:06:38.923189+00:00 [queued]>
+[2025-10-30T09:07:13.532+0000] {taskinstance.py:1359} INFO - Starting attempt 1 of 2
+[2025-10-30T09:07:13.592+0000] {taskinstance.py:1380} INFO - Executing <Task(PythonOperator): get_weather> on 2025-10-30 09:06:38.923189+00:00
+[2025-10-30T09:07:13.607+0000] {standard_task_runner.py:57} INFO - Started process 267 to run task
+[2025-10-30T09:07:13.618+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'city_weather_pipeline', 'get_weather', 'manual__2025-10-30T09:06:38.923189+00:00', '--job-id', '12', '--raw', '--subdir', 'DAGS_FOLDER/data_pipeline_dag.py', '--cfg-path', '/tmp/tmpop_b7p61']
+[2025-10-30T09:07:13.627+0000] {standard_task_runner.py:85} INFO - Job 12: Subtask get_weather
+[2025-10-30T09:07:13.665+0000] {logging_mixin.py:151} WARNING - /home/***/.local/lib/python3.8/site-packages/***/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.
+[2025-10-30T09:07:13.816+0000] {task_command.py:415} INFO - Running <TaskInstance: city_weather_pipeline.get_weather manual__2025-10-30T09:06:38.923189+00:00 [running]> on host a649f631f3ac
+[2025-10-30T09:07:14.144+0000] {taskinstance.py:1660} INFO - Exporting env vars: AIRFLOW_CTX_DAG_EMAIL='kathibrahmateja@gmail.com' AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='city_weather_pipeline' AIRFLOW_CTX_TASK_ID='get_weather' AIRFLOW_CTX_EXECUTION_DATE='2025-10-30T09:06:38.923189+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-10-30T09:06:38.923189+00:00'
+[2025-10-30T09:07:14.462+0000] {data_pipeline_dag.py:80} ERROR - Error fetching weather data for London: 401 Client Error: Unauthorized for url: http://api.openweathermap.org/data/2.5/weather?q=London%2CUK&appid=your_api_key_here&units=metric
+[2025-10-30T09:07:14.530+0000] {data_pipeline_dag.py:80} ERROR - Error fetching weather data for New York: 401 Client Error: Unauthorized for url: http://api.openweathermap.org/data/2.5/weather?q=New+York%2CUS&appid=your_api_key_here&units=metric
+[2025-10-30T09:07:14.595+0000] {data_pipeline_dag.py:80} ERROR - Error fetching weather data for Tokyo: 401 Client Error: Unauthorized for url: http://api.openweathermap.org/data/2.5/weather?q=Tokyo%2CJP&appid=your_api_key_here&units=metric
+[2025-10-30T09:07:14.659+0000] {data_pipeline_dag.py:80} ERROR - Error fetching weather data for Berlin: 401 Client Error: Unauthorized for url: http://api.openweathermap.org/data/2.5/weather?q=Berlin%2CDE&appid=your_api_key_here&units=metric
+[2025-10-30T09:07:14.722+0000] {data_pipeline_dag.py:80} ERROR - Error fetching weather data for Sydney: 401 Client Error: Unauthorized for url: http://api.openweathermap.org/data/2.5/weather?q=Sydney%2CAU&appid=your_api_key_here&units=metric
+[2025-10-30T09:07:14.767+0000] {python.py:194} INFO - Done. Returned value was: None
+[2025-10-30T09:07:14.784+0000] {taskinstance.py:1398} INFO - Marking task as SUCCESS. dag_id=city_weather_pipeline, task_id=get_weather, execution_date=20251030T090638, start_date=20251030T090713, end_date=20251030T090714
+[2025-10-30T09:07:14.852+0000] {local_task_job_runner.py:228} INFO - Task exited with return code 0
+[2025-10-30T09:07:14.899+0000] {taskinstance.py:2776} INFO - 1 downstream tasks scheduled from follow-on schedule check

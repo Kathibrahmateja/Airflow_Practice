@@ -1,0 +1,112 @@
+[2025-10-30T09:12:32.332+0000] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: city_weather_pipeline.merge_data manual__2025-10-30T09:06:38.923189+00:00 [queued]>
+[2025-10-30T09:12:32.356+0000] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: city_weather_pipeline.merge_data manual__2025-10-30T09:06:38.923189+00:00 [queued]>
+[2025-10-30T09:12:32.357+0000] {taskinstance.py:1359} INFO - Starting attempt 2 of 2
+[2025-10-30T09:12:32.390+0000] {taskinstance.py:1380} INFO - Executing <Task(PythonOperator): merge_data> on 2025-10-30 09:06:38.923189+00:00
+[2025-10-30T09:12:32.403+0000] {standard_task_runner.py:57} INFO - Started process 301 to run task
+[2025-10-30T09:12:32.412+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'city_weather_pipeline', 'merge_data', 'manual__2025-10-30T09:06:38.923189+00:00', '--job-id', '14', '--raw', '--subdir', 'DAGS_FOLDER/data_pipeline_dag.py', '--cfg-path', '/tmp/tmp0qprijbg']
+[2025-10-30T09:12:32.417+0000] {standard_task_runner.py:85} INFO - Job 14: Subtask merge_data
+[2025-10-30T09:12:32.465+0000] {logging_mixin.py:151} WARNING - /home/***/.local/lib/python3.8/site-packages/***/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.
+[2025-10-30T09:12:32.558+0000] {task_command.py:415} INFO - Running <TaskInstance: city_weather_pipeline.merge_data manual__2025-10-30T09:06:38.923189+00:00 [running]> on host a649f631f3ac
+[2025-10-30T09:12:32.830+0000] {taskinstance.py:1660} INFO - Exporting env vars: AIRFLOW_CTX_DAG_EMAIL='kathibrahmateja@gmail.com' AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='city_weather_pipeline' AIRFLOW_CTX_TASK_ID='merge_data' AIRFLOW_CTX_EXECUTION_DATE='2025-10-30T09:06:38.923189+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-10-30T09:06:38.923189+00:00'
+[2025-10-30T09:12:32.908+0000] {data_pipeline_dag.py:102} ERROR - Error merging data: 'city'
+[2025-10-30T09:12:32.926+0000] {taskinstance.py:1935} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 192, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 209, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/data_pipeline_dag.py", line 96, in merge_data
+    merged_df = pd.merge(cities_df, weather_df, on='city', how='left')
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 148, in merge
+    op = _MergeOperation(
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 737, in __init__
+    ) = self._get_merge_keys()
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 1203, in _get_merge_keys
+    right_keys.append(right._get_label_or_level_values(rk))
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/generic.py", line 1778, in _get_label_or_level_values
+    raise KeyError(key)
+KeyError: 'city'
+[2025-10-30T09:12:32.982+0000] {taskinstance.py:1398} INFO - Marking task as FAILED. dag_id=city_weather_pipeline, task_id=merge_data, execution_date=20251030T090638, start_date=20251030T091232, end_date=20251030T091232
+[2025-10-30T09:12:33.120+0000] {logging_mixin.py:151} WARNING - /home/***/.local/lib/python3.8/site-packages/***/utils/email.py:154 RemovedInAirflow3Warning: Fetching SMTP credentials from configuration variables will be deprecated in a future release. Please set credentials using a connection instead.
+[2025-10-30T09:12:33.129+0000] {configuration.py:1063} WARNING - section/key [smtp/smtp_user] not found in config
+[2025-10-30T09:12:33.131+0000] {email.py:270} INFO - Email alerting: attempt 1
+[2025-10-30T09:12:33.235+0000] {configuration.py:1063} WARNING - section/key [smtp/smtp_user] not found in config
+[2025-10-30T09:12:33.236+0000] {email.py:270} INFO - Email alerting: attempt 1
+[2025-10-30T09:12:33.241+0000] {taskinstance.py:2005} ERROR - Failed to send email to: ['kathibrahmateja@gmail.com']
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 1516, in _run_raw_task
+    self._execute_task_with_callbacks(context, test_mode, session=session)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 1679, in _execute_task_with_callbacks
+    result = self._execute_task(context, task_orig)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 1742, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 192, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 209, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/data_pipeline_dag.py", line 96, in merge_data
+    merged_df = pd.merge(cities_df, weather_df, on='city', how='left')
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 148, in merge
+    op = _MergeOperation(
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 737, in __init__
+    ) = self._get_merge_keys()
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 1203, in _get_merge_keys
+    right_keys.append(right._get_label_or_level_values(rk))
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/generic.py", line 1778, in _get_label_or_level_values
+    raise KeyError(key)
+KeyError: 'city'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 2418, in email_alert
+    send_email(task.email, subject, html_content)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 80, in send_email
+    return backend(
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 154, in send_email_smtp
+    send_mime_email(e_from=mail_from, e_to=recipients, mime_msg=msg, conn_id=conn_id, dryrun=dryrun)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 272, in send_mime_email
+    smtp_conn = _get_smtp_connection(smtp_host, smtp_port, smtp_timeout, smtp_ssl)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 317, in _get_smtp_connection
+    return smtplib.SMTP(host=host, port=port, timeout=timeout)
+  File "/usr/local/lib/python3.8/smtplib.py", line 255, in __init__
+    (code, msg) = self.connect(host, port)
+  File "/usr/local/lib/python3.8/smtplib.py", line 339, in connect
+    self.sock = self._get_socket(host, port, self.timeout)
+  File "/usr/local/lib/python3.8/smtplib.py", line 310, in _get_socket
+    return socket.create_connection((host, port), timeout,
+  File "/usr/local/lib/python3.8/socket.py", line 808, in create_connection
+    raise err
+  File "/usr/local/lib/python3.8/socket.py", line 796, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 2003, in handle_failure
+    self.email_alert(error, task)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 2420, in email_alert
+    send_email(task.email, subject, html_content_err)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 80, in send_email
+    return backend(
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 154, in send_email_smtp
+    send_mime_email(e_from=mail_from, e_to=recipients, mime_msg=msg, conn_id=conn_id, dryrun=dryrun)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 272, in send_mime_email
+    smtp_conn = _get_smtp_connection(smtp_host, smtp_port, smtp_timeout, smtp_ssl)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 317, in _get_smtp_connection
+    return smtplib.SMTP(host=host, port=port, timeout=timeout)
+  File "/usr/local/lib/python3.8/smtplib.py", line 255, in __init__
+    (code, msg) = self.connect(host, port)
+  File "/usr/local/lib/python3.8/smtplib.py", line 339, in connect
+    self.sock = self._get_socket(host, port, self.timeout)
+  File "/usr/local/lib/python3.8/smtplib.py", line 310, in _get_socket
+    return socket.create_connection((host, port), timeout,
+  File "/usr/local/lib/python3.8/socket.py", line 808, in create_connection
+    raise err
+  File "/usr/local/lib/python3.8/socket.py", line 796, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+[2025-10-30T09:12:33.417+0000] {standard_task_runner.py:104} ERROR - Failed to execute job 14 for task merge_data ('city'; 301)
+[2025-10-30T09:12:33.478+0000] {local_task_job_runner.py:228} INFO - Task exited with return code 1
+[2025-10-30T09:12:33.529+0000] {taskinstance.py:2776} INFO - 0 downstream tasks scheduled from follow-on schedule check

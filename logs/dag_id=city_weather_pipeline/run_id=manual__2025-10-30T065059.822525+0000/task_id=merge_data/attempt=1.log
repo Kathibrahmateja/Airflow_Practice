@@ -1,0 +1,32 @@
+[2025-10-30T06:51:38.068+0000] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: city_weather_pipeline.merge_data manual__2025-10-30T06:50:59.822525+00:00 [queued]>
+[2025-10-30T06:51:38.085+0000] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: city_weather_pipeline.merge_data manual__2025-10-30T06:50:59.822525+00:00 [queued]>
+[2025-10-30T06:51:38.086+0000] {taskinstance.py:1359} INFO - Starting attempt 1 of 2
+[2025-10-30T06:51:38.118+0000] {taskinstance.py:1380} INFO - Executing <Task(PythonOperator): merge_data> on 2025-10-30 06:50:59.822525+00:00
+[2025-10-30T06:51:38.128+0000] {standard_task_runner.py:57} INFO - Started process 216 to run task
+[2025-10-30T06:51:38.136+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'city_weather_pipeline', 'merge_data', 'manual__2025-10-30T06:50:59.822525+00:00', '--job-id', '8', '--raw', '--subdir', 'DAGS_FOLDER/data_pipeline_dag.py', '--cfg-path', '/tmp/tmpyhs7obpq']
+[2025-10-30T06:51:38.140+0000] {standard_task_runner.py:85} INFO - Job 8: Subtask merge_data
+[2025-10-30T06:51:38.216+0000] {logging_mixin.py:151} WARNING - /home/***/.local/lib/python3.8/site-packages/***/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.
+[2025-10-30T06:51:38.354+0000] {task_command.py:415} INFO - Running <TaskInstance: city_weather_pipeline.merge_data manual__2025-10-30T06:50:59.822525+00:00 [running]> on host a649f631f3ac
+[2025-10-30T06:51:38.513+0000] {taskinstance.py:1660} INFO - Exporting env vars: AIRFLOW_CTX_DAG_EMAIL='kathibrahmateja@gmail.com' AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='city_weather_pipeline' AIRFLOW_CTX_TASK_ID='merge_data' AIRFLOW_CTX_EXECUTION_DATE='2025-10-30T06:50:59.822525+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-10-30T06:50:59.822525+00:00'
+[2025-10-30T06:51:38.574+0000] {data_pipeline_dag.py:102} ERROR - Error merging data: 'city'
+[2025-10-30T06:51:38.575+0000] {taskinstance.py:1935} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 192, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 209, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/data_pipeline_dag.py", line 96, in merge_data
+    merged_df = pd.merge(cities_df, weather_df, on='city', how='left')
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 148, in merge
+    op = _MergeOperation(
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 737, in __init__
+    ) = self._get_merge_keys()
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/reshape/merge.py", line 1203, in _get_merge_keys
+    right_keys.append(right._get_label_or_level_values(rk))
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/generic.py", line 1778, in _get_label_or_level_values
+    raise KeyError(key)
+KeyError: 'city'
+[2025-10-30T06:51:38.632+0000] {taskinstance.py:1398} INFO - Marking task as UP_FOR_RETRY. dag_id=city_weather_pipeline, task_id=merge_data, execution_date=20251030T065059, start_date=20251030T065138, end_date=20251030T065138
+[2025-10-30T06:51:38.657+0000] {standard_task_runner.py:104} ERROR - Failed to execute job 8 for task merge_data ('city'; 216)
+[2025-10-30T06:51:38.674+0000] {local_task_job_runner.py:228} INFO - Task exited with return code 1
+[2025-10-30T06:51:38.716+0000] {taskinstance.py:2776} INFO - 0 downstream tasks scheduled from follow-on schedule check

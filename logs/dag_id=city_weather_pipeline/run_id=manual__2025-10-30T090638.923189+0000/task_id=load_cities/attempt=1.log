@@ -1,0 +1,16 @@
+[2025-10-30T09:07:01.932+0000] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: city_weather_pipeline.load_cities manual__2025-10-30T09:06:38.923189+00:00 [queued]>
+[2025-10-30T09:07:01.950+0000] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: city_weather_pipeline.load_cities manual__2025-10-30T09:06:38.923189+00:00 [queued]>
+[2025-10-30T09:07:01.951+0000] {taskinstance.py:1359} INFO - Starting attempt 1 of 2
+[2025-10-30T09:07:01.985+0000] {taskinstance.py:1380} INFO - Executing <Task(PythonOperator): load_cities> on 2025-10-30 09:06:38.923189+00:00
+[2025-10-30T09:07:02.031+0000] {standard_task_runner.py:57} INFO - Started process 258 to run task
+[2025-10-30T09:07:02.080+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'city_weather_pipeline', 'load_cities', 'manual__2025-10-30T09:06:38.923189+00:00', '--job-id', '11', '--raw', '--subdir', 'DAGS_FOLDER/data_pipeline_dag.py', '--cfg-path', '/tmp/tmpy2jgyjob']
+[2025-10-30T09:07:02.095+0000] {standard_task_runner.py:85} INFO - Job 11: Subtask load_cities
+[2025-10-30T09:07:02.335+0000] {logging_mixin.py:151} WARNING - /home/***/.local/lib/python3.8/site-packages/***/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.
+[2025-10-30T09:07:03.046+0000] {task_command.py:415} INFO - Running <TaskInstance: city_weather_pipeline.load_cities manual__2025-10-30T09:06:38.923189+00:00 [running]> on host a649f631f3ac
+[2025-10-30T09:07:03.324+0000] {taskinstance.py:1660} INFO - Exporting env vars: AIRFLOW_CTX_DAG_EMAIL='kathibrahmateja@gmail.com' AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='city_weather_pipeline' AIRFLOW_CTX_TASK_ID='load_cities' AIRFLOW_CTX_EXECUTION_DATE='2025-10-30T09:06:38.923189+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-10-30T09:06:38.923189+00:00'
+[2025-10-30T09:07:03.336+0000] {data_pipeline_dag.py:37} INFO - Looking for cities file at: /opt/***/dags/cities.csv
+[2025-10-30T09:07:04.342+0000] {data_pipeline_dag.py:49} INFO - Successfully loaded 5 cities
+[2025-10-30T09:07:04.345+0000] {python.py:194} INFO - Done. Returned value was: None
+[2025-10-30T09:07:04.378+0000] {taskinstance.py:1398} INFO - Marking task as SUCCESS. dag_id=city_weather_pipeline, task_id=load_cities, execution_date=20251030T090638, start_date=20251030T090701, end_date=20251030T090704
+[2025-10-30T09:07:04.509+0000] {local_task_job_runner.py:228} INFO - Task exited with return code 0
+[2025-10-30T09:07:04.604+0000] {taskinstance.py:2776} INFO - 1 downstream tasks scheduled from follow-on schedule check
