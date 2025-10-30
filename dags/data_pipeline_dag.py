@@ -87,17 +87,47 @@ def merge_data(**context) -> None:
     Merge city and weather data.
     """
     try:
-        cities_data = context['task_instance'].xcom_pull(key='cities_data', task_ids='load_cities')
-        weather_data = context['task_instance'].xcom_pull(key='weather_data', task_ids='get_weather')
+        ti = context['task_instance']
+        cities_data = ti.xcom_pull(key='cities_data', task_ids='load_cities')
+        weather_data = ti.xcom_pull(key='weather_data', task_ids='get_weather')
+
+        if not cities_data:
+            logging.error('No cities data found in XCom (key="cities_data"). Aborting merge.')
+            raise ValueError('cities_data is empty or missing')
+
+        # Ensure weather_data is a list (may be None if get_weather failed)
+        if weather_data is None:
+            logging.warning('No weather data found in XCom (key="weather_data"). Proceeding with empty weather set.')
+            weather_data = []
 
         cities_df = pd.DataFrame(cities_data)
         weather_df = pd.DataFrame(weather_data)
 
+        # Defensive: ensure both DataFrames have a 'city' column
+        if 'city' not in cities_df.columns:
+            logging.error(f"'city' column missing from cities_df. Columns: {list(cities_df.columns)}")
+            raise KeyError("'city' column missing from cities data")
+
+        if weather_df.empty:
+            # Create empty weather_df with expected columns so merge won't fail
+            weather_df = pd.DataFrame(columns=['city', 'temperature', 'weather_description'])
+        elif 'city' not in weather_df.columns:
+            logging.error(f"'city' column missing from weather_df. Columns: {list(weather_df.columns)}")
+            # Attempt best-effort: if weather entries have a different city key, try to normalize
+            # (common cases: 'name' or 'city_name')
+            for alt in ('name', 'city_name'):
+                if alt in weather_df.columns:
+                    weather_df = weather_df.rename(columns={alt: 'city'})
+                    logging.info(f"Renamed weather_df column '{alt}' to 'city'")
+                    break
+            else:
+                raise KeyError("'city' column missing from weather data")
+
         merged_df = pd.merge(cities_df, weather_df, on='city', how='left')
         merged_data = merged_df.to_dict('records')
-        
-        context['task_instance'].xcom_push(key='merged_data', value=merged_data)
-        logging.info("Successfully merged city and weather data")
+
+        ti.xcom_push(key='merged_data', value=merged_data)
+        logging.info(f"Successfully merged city and weather data: {len(merged_data)} records")
     except Exception as e:
         logging.error(f"Error merging data: {str(e)}")
         raise
