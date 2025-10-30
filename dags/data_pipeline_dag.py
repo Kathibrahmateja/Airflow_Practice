@@ -10,10 +10,14 @@ This DAG performs the following tasks:
 """
 
 from datetime import datetime, timedelta
+
+from sqlalchemy import create_engine, text
+import urllib.parse
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.email import EmailOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
+import snowflake.connector
 import pandas as pd
 import requests
 import os
@@ -25,7 +29,7 @@ from typing import Dict, List
 CITIES_FILE = str(Path(__file__).resolve().parent.joinpath('cities.csv'))
 WEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', 'your_api_key_here')
 WEATHER_API_BASE_URL = 'http://api.openweathermap.org/data/2.5/weather'
-EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENT', 'kathibrahmateja@gmail.com')
+EMAIL_RECIPIENT = <email_name>
 
 def load_cities_data(**context) -> None:
     """
@@ -140,8 +144,21 @@ def load_to_database(**context) -> None:
         merged_data = context['task_instance'].xcom_pull(key='merged_data', task_ids='merge_data')
         df = pd.DataFrame(merged_data)
         
-        pg_hook = PostgresHook(postgres_conn_id='airflow_db')
-        engine = pg_hook.get_sqlalchemy_engine()
+        # Prefer environment variables for credentials; fall back to literals (not recommended for prod)
+        user = os.getenv('SNOWFLAKE_USER', 'bkatti')
+        password = os.getenv('SNOWFLAKE_PASSWORD', 'Divya558!@#$%^')
+        account = os.getenv('SNOWFLAKE_ACCOUNT', 'RLUVVNN-FQ05221')
+        warehouse = os.getenv('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH')
+        database = os.getenv('SNOWFLAKE_DATABASE', 'PRACTICE')
+        schema = os.getenv('SNOWFLAKE_SCHEMA', 'TEST')
+
+        # URL-encode credentials (password may contain characters like #, %, etc.)
+        password_quoted = urllib.parse.quote_plus(password)
+
+        # Create Snowflake SQLAlchemy engine (ensure password is URL-encoded so parsing doesn't break)
+        engine = create_engine(
+            f'snowflake://{user}:{password_quoted}@{account}/{database}/{schema}?warehouse={warehouse}'
+        )
         
         # Create table if it doesn't exist
         create_table_sql = """
@@ -155,10 +172,16 @@ def load_to_database(**context) -> None:
         )
         """
         with engine.connect() as conn:
-            conn.execute(create_table_sql)
+            result = conn.execute(text(create_table_sql))
+            logging.info("Ensured city_weather table exists")
+
+        df.to_sql(
+            'city_weather',              # Target table name
+            con=engine,              # SQLAlchemy connection
+            if_exists='append',     # Options: 'fail', 'replace', 'append'
+            index=False              # Don’t include DataFrame index
+        )
         
-        # Load data into database
-        df.to_sql('city_weather', engine, if_exists='append', index=False)
         logging.info(f"Successfully loaded {len(df)} records into database")
     except Exception as e:
         logging.error(f"Error loading data to database: {str(e)}")
