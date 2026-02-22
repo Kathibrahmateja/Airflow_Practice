@@ -4,7 +4,7 @@ This DAG performs the following tasks:
 1. Loads city data from cities.csv
 2. Retrieves weather data from OpenWeatherMap API
 3. Merges the city and weather data
-4. Loads the merged data into a PostgreSQL database
+4. Loads the merged data into a Snowflake database
 5. Performs cleanup operations
 6. Sends email notification about job status
 """
@@ -15,9 +15,7 @@ from sqlalchemy import create_engine, text
 import urllib.parse
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.email import EmailOperator
-from airflow.providers.postgres.hooks.postgres import PostgresHook
-import snowflake.connector
+from airflow.utils.email import send_email
 import pandas as pd
 import requests
 import os
@@ -29,7 +27,7 @@ from typing import Dict, List
 CITIES_FILE = str(Path(__file__).resolve().parent.joinpath('cities.csv'))
 WEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', 'your_api_key_here')
 WEATHER_API_BASE_URL = 'http://api.openweathermap.org/data/2.5/weather'
-EMAIL_RECIPIENT = <email_name>
+EMAIL_RECIPIENT = 'kathibrahmateja@gmail.com'
 
 def load_cities_data(**context) -> None:
     """
@@ -207,7 +205,7 @@ default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'email': [EMAIL_RECIPIENT],
-    'email_on_failure': True,
+    'email_on_failure': False,  # Disable Airflow's automatic SMTP emails; use notification task instead
     'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
@@ -254,12 +252,21 @@ with DAG(
         python_callable=cleanup,
     )
 
-    # Task 6: Send email notification
-    email_notification = EmailOperator(
+    # Task 6: Send email notification (safe/graceful)
+    def send_notification(**context):
+        """Send a notification email, but don't fail the DAG if SMTP is unavailable."""
+        subject = 'City Weather Pipeline Status'
+        html_content = 'The city weather pipeline has completed successfully!'
+        try:
+            send_email(to=EMAIL_RECIPIENT, subject=subject, html_content=html_content)
+            logging.info('Notification email sent to %s', EMAIL_RECIPIENT)
+        except Exception as e:
+            # Log the error but do NOT re-raise; we don't want notification failure to fail the DAG
+            logging.warning('Failed to send notification email: %s', str(e))
+
+    email_notification = PythonOperator(
         task_id='send_email',
-        to=EMAIL_RECIPIENT,
-        subject='City Weather Pipeline Status',
-        html_content='The city weather pipeline has completed successfully!',
+        python_callable=send_notification,
     )
 
     # Define task dependencies

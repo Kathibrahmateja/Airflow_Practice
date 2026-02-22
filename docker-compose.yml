@@ -1,4 +1,17 @@
-services:
+﻿services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
@@ -21,16 +34,16 @@ services:
     image: airflow-custom:latest
     command: webserver
     environment:
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: mssql+pyodbc://sa:Airflow123!@mssql/airflow?driver=ODBC+Driver+17+for+SQL+Server
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__WEBSERVER__WORKERS: '2'
       AIRFLOW__WEBSERVER__WORKER_REFRESH_INTERVAL: '3600'
       AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT: '300'
       AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
       AIRFLOW__SMTP__SMTP_PORT: 587
-      AIRFLOW__SMTP__SMTP_USER: ${AIRFLOW_SMTP_USER}
-      AIRFLOW__SMTP__SMTP_PASSWORD: ${AIRFLOW_SMTP_PASSWORD}
-      AIRFLOW__SMTP__SMTP_MAIL_FROM: ${AIRFLOW_SMTP_MAIL_FROM}
+      AIRFLOW__SMTP__SMTP_USER: $${AIRFLOW_SMTP_USER}
+      AIRFLOW__SMTP__SMTP_PASSWORD: $${AIRFLOW_SMTP_PASSWORD}
+      AIRFLOW__SMTP__SMTP_MAIL_FROM: $${AIRFLOW_SMTP_MAIL_FROM}
       AIRFLOW__SMTP__SMTP_SSL: 'True'
       AIRFLOW__SMTP__SMTP_STARTTLS: 'True'
     volumes:
@@ -48,13 +61,13 @@ services:
     image: airflow-custom:latest
     command: scheduler
     environment:
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: mssql+pyodbc://sa:Airflow123!@mssql/airflow?driver=ODBC+Driver+17+for+SQL+Server
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
       AIRFLOW__SMTP__SMTP_PORT: 587
-      AIRFLOW__SMTP__SMTP_USER: ${AIRFLOW_SMTP_USER}
-      AIRFLOW__SMTP__SMTP_PASSWORD: ${AIRFLOW_SMTP_PASSWORD}
-      AIRFLOW__SMTP__SMTP_MAIL_FROM: ${AIRFLOW_SMTP_MAIL_FROM}
+      AIRFLOW__SMTP__SMTP_USER: $${AIRFLOW_SMTP_USER}
+      AIRFLOW__SMTP__SMTP_PASSWORD: $${AIRFLOW_SMTP_PASSWORD}
+      AIRFLOW__SMTP__SMTP_MAIL_FROM: $${AIRFLOW_SMTP_MAIL_FROM}
       AIRFLOW__SMTP__SMTP_SSL: 'True'
       AIRFLOW__SMTP__SMTP_STARTTLS: 'True'
     volumes:
@@ -79,12 +92,13 @@ services:
           --firstname airflow \
           --lastname airflow \
           --role Admin \
-          --email ${AIRFLOW_SMTP_USER}
+          --email airflow@airflow.com
     environment:
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: mssql+pyodbc://sa:Airflow123!@mssql/airflow?driver=ODBC+Driver+17+for+SQL+Server
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     depends_on:
-      - mssql
+      - postgres
 
 volumes:
+  postgres-db-volume:
   mssql-data:
