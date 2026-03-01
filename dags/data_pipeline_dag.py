@@ -22,6 +22,12 @@ import os
 from pathlib import Path
 import logging
 from typing import Dict, List
+import warnings
+
+# Suppress Hadoop/Spark warnings on Windows (safe to ignore, doesn't affect functionality)
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+logging.getLogger('py4j').setLevel(logging.ERROR)
+logging.getLogger('pyspark').setLevel(logging.ERROR)
 
 # Constants
 CITIES_FILE = str(Path(__file__).resolve().parent.joinpath('cities.csv'))
