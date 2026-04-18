@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Airflow
+logs/
+airflow.db
+unittests.cfg
+airflow_db_reset
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment files
+.env
+.env.local
+
+# Project specific
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Spark
+metastore_db/
+*.log
+
+# Credentials (don't commit these)
+snowflake_credentials.json

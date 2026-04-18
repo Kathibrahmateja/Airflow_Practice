@@ -10,7 +10,6 @@ This DAG performs the following tasks:
 """
 
 from datetime import datetime, timedelta
-
 from sqlalchemy import create_engine, text
 import urllib.parse
 from airflow import DAG
@@ -23,14 +22,19 @@ from pathlib import Path
 import logging
 from typing import Dict, List
 import warnings
+import sys
 
 # Suppress Hadoop/Spark warnings on Windows (safe to ignore, doesn't affect functionality)
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 logging.getLogger('py4j').setLevel(logging.ERROR)
 logging.getLogger('pyspark').setLevel(logging.ERROR)
 
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 # Constants
-CITIES_FILE = str(Path(__file__).resolve().parent.joinpath('cities.csv'))
+# Updated to use include/data directory
+CITIES_FILE = str(Path(__file__).resolve().parent.parent.parent.joinpath('include/data/cities.csv'))
 WEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', 'your_api_key_here')
 WEATHER_API_BASE_URL = 'http://api.openweathermap.org/data/2.5/weather'
 EMAIL_RECIPIENT = 'kathibrahmateja@gmail.com'
@@ -44,7 +48,7 @@ def load_cities_data(**context) -> None:
         cities_path = Path(CITIES_FILE)
         logging.info(f"Looking for cities file at: {cities_path}")
         if not cities_path.exists():
-            # List files in the DAGs directory to help troubleshoot mounting issues
+            # List files in the data directory to help troubleshoot mounting issues
             dag_dir = cities_path.parent
             listing = [p.name for p in dag_dir.iterdir()] if dag_dir.exists() else []
             logging.error(f"cities.csv not found at {cities_path}. Files in {dag_dir}: {listing}")
@@ -142,7 +146,7 @@ def merge_data(**context) -> None:
 
 def load_to_database(**context) -> None:
     """
-    Load merged data into PostgreSQL database.
+    Load merged data into Snowflake database.
     """
     try:
         merged_data = context['task_instance'].xcom_pull(key='merged_data', task_ids='merge_data')
@@ -183,7 +187,7 @@ def load_to_database(**context) -> None:
             'city_weather',              # Target table name
             con=engine,              # SQLAlchemy connection
             if_exists='append',     # Options: 'fail', 'replace', 'append'
-            index=False              # Don’t include DataFrame index
+            index=False              # Don't include DataFrame index
         )
         
         logging.info(f"Successfully loaded {len(df)} records into database")
@@ -211,7 +215,7 @@ default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'email': [EMAIL_RECIPIENT],
-    'email_on_failure': False,  # Disable Airflow's automatic SMTP emails; use notification task instead
+    'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),

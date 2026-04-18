@@ -48,6 +48,8 @@
       AIRFLOW__SMTP__SMTP_STARTTLS: 'True'
     volumes:
       - ./dags:/opt/airflow/dags
+      - ./include:/opt/airflow/include
+      - ./config:/opt/airflow/config
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
     ports:
@@ -72,6 +74,8 @@
       AIRFLOW__SMTP__SMTP_STARTTLS: 'True'
     volumes:
       - ./dags:/opt/airflow/dags
+      - ./include:/opt/airflow/include
+      - ./config:/opt/airflow/config
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
     depends_on:
@@ -93,6 +97,11 @@
           --lastname airflow \
           --role Admin \
           --email airflow@airflow.com
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./include:/opt/airflow/include
+      - ./config:/opt/airflow/config
+      - ./plugins:/opt/airflow/plugins
     environment:
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
